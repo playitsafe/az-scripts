@@ -1,0 +1,21 @@
+{
+  "name": "tiktok-downloader",
+  "version": "1.0.0",
+  "description": "自动化视频下载工具",
+  "main": "downloader.js",
+  "scripts": {
+    "start": "node downloader.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "puppeteer": "^24.10.0"
+  },
+  "keywords": [
+    "video",
+    "downloader",
+    "automation",
+    "puppeteer"
+  ],
+  "author": "aaron",
+  "license": "MIT"
+}

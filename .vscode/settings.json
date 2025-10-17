@@ -1,0 +1,48 @@
+{
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "gitlens.codeLens.enabled": false,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/*.map": {
+      "when": "$(basename)"
+    },
+    "**/*.js": {
+      "when": "$(basename).ts"
+    },
+    "**/*.sqlite": true
+  },
+  "editor.formatOnSave": true,
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#c74a8b",
+    "titleBar.activeForeground": "#fff",
+    "titleBar.inactiveBackground": "#952860",
+    "titleBar.inactiveForeground": "#cccccc",
+    "activityBar.activeBackground": "#c74a8b",
+    "activityBar.foreground": "#fff"
+  },
+  "eslint.validate": ["javascript", "typescript"],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "jestrunner.debugOptions": {
+    "skipFiles": ["<node_internals>/**"],
+    "smartStep": true
+  },
+  "jestrunner.jestPath": "node_modules/jest/bin/jest.js",
+  "typescript.format.enable": false,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jade]": {
+    "editor.defaultFormatter": "ducfilan.pug-formatter"
+  },
+  "[liquid]": {
+    "editor.defaultFormatter": "sissel.shopify-liquid"
+  }
+}

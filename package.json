@@ -1,0 +1,20 @@
+{
+  "name": "az-scripts",
+  "version": "1.0.0",
+  "description": "A repo to manage all kinds of mine util tools",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "rate": "node ./packages/rate-checker/get_aud_rate.js",
+    "type": "node ./packages/type-validator/index.js"
+  },
+  "author": "aaron",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "node-notifier": "^10.0.1",
+    "puppeteer": "^24.10.0",
+    "typescript-object-validator": "^1.1.1"
+  }
+}
