@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         右键复制
+// @name         Click to copy
 // @namespace    http://tampermonkey.net/
-// @version      2025-09-02
-// @description  try to take over the world!
-// @author       You
+// @version      2025-10-18
+// @description  Hold Command key to copy text on right click
+// @author       Aaron
 // @match        *://*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=douyin.com
 // @grant        GM_setClipboard
@@ -11,6 +11,28 @@
 
 (function () {
   "use strict";
+
+  let metaDown = false;
+
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.metaKey) metaDown = true;
+    },
+    true
+  );
+
+  window.addEventListener(
+    "keyup",
+    (e) => {
+      if (!e.metaKey) metaDown = false;
+    },
+    true
+  );
+
+  window.addEventListener("blur", () => {
+    metaDown = false;
+  });
 
   function copyToClipboard(text) {
     if (typeof GM_setClipboard === "function") {
@@ -24,7 +46,7 @@
     }
   }
 
-  // 创建 toast 容器
+  // Create toast container
   const toastContainer = document.createElement("div");
   toastContainer.style.position = "fixed";
   toastContainer.style.bottom = "20px";
@@ -53,15 +75,20 @@
   }
 
   document.addEventListener("contextmenu", function (e) {
+    //Only copy when Command key is on hold
+    if (!(e.metaKey || metaDown)) return; // Command key -> metaKey
+
     let target = e.target;
     let text = target.innerText || target.textContent || "";
 
     if (text.trim()) {
       copyToClipboard(text.trim());
-      console.log("已复制元素文字:", text);
       showToast(
-        "已复制: " + (text.length > 20 ? text.slice(0, 20) + "..." : text)
+        "Copyied: " + (text.length > 20 ? text.slice(0, 20) + "..." : text)
       );
+
+      // reset meta flag in case keyup didn’t fire (macOS Safari/Chrome quirk)
+      metaDown = false;
     }
   });
 })();
