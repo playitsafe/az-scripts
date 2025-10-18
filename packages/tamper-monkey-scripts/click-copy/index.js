@@ -39,10 +39,10 @@
       GM_setClipboard(text);
     } else if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).catch((err) => {
-        console.error("clipboard API 失败:", err);
+        console.error("clipboard API error:", err);
       });
     } else {
-      console.warn("无法复制: 没有可用的 API");
+      console.warn("Failed to copy: API not available");
     }
   }
 
