@@ -52,4 +52,51 @@
   setInterval(() => {
     window.showAd = () => {};
   }, 2000);
+
+  // Auto paste function
+  async function pasteClipboardToInput(inputId) {
+    const input = document.querySelector(`#${inputId}`);
+    if (!input) return;
+
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && text.trim()) {
+        input.value = text.trim();
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        console.log("Auto-pasted clipboard text into #url:", text);
+      }
+    } catch (err) {
+      console.warn("Clipboard read failed:", err);
+    }
+  }
+
+  let inputId = null;
+
+  // For TikTok and XHS downloader
+  if (location.hostname.includes("dlpanda.com")) {
+    inputId = "url";
+  }
+
+  // For X downloader
+  if (location.hostname.includes("ssstwitter.com")) {
+    inputId = "main_page_text";
+  }
+
+  if (inputId) {
+    // Try immediately and again after a short delay (in case input loads late)
+    // pasteClipboardToInput(inputId);
+    // Try when the document gets focus
+    window.addEventListener("focus", () => pasteClipboardToInput(inputId), {
+      once: true,
+    });
+
+    // Also try after the first user click
+    document.addEventListener(
+      "click",
+      () => {
+        pasteClipboardToInput(inputId);
+      },
+      { once: true }
+    );
+  }
 })();
