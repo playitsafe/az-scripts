@@ -12,8 +12,12 @@
 // @run-at       document-end
 // ==/UserScript==
 
-(function () {
+(async function () {
   "use strict";
+
+  const isTwitter = location.hostname.includes("ssstwitter.com");
+  const isDlpanda = location.hostname.includes("dlpanda.com");
+  const isXiaohongshu = location.pathname === "/xiaohongshu";
   // override `showAds` function
   window.showAd = () => {};
 
@@ -38,6 +42,27 @@
     for (const sel of selectors) {
       const el = document.querySelector(sel);
       if (el) el.remove();
+    }
+  }
+
+  // download img with blob
+  async function forceDownloadImage(url, fileName) {
+    try {
+      const res = await fetch(url, { credentials: "omit" });
+      const blob = await res.blob();
+
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `${fileName}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      URL.revokeObjectURL(blobUrl);
+      console.log("PNG downloaded via blob:", url);
+    } catch (err) {
+      console.error("PNG blob download failed:", err);
     }
   }
 
@@ -73,12 +98,12 @@
   let inputId = null;
 
   // For TikTok and XHS downloader
-  if (location.hostname.includes("dlpanda.com")) {
+  if (isDlpanda) {
     inputId = "url";
   }
 
   // For X downloader
-  if (location.hostname.includes("ssstwitter.com")) {
+  if (isTwitter) {
     inputId = "main_page_text";
   }
 
@@ -101,7 +126,7 @@
   }
 
   // Fix ssstwitter.com links
-  if (location.hostname.includes("ssstwitter.com")) {
+  if (isTwitter) {
     function fixDirectLinks() {
       document.querySelectorAll(".result-container").forEach((container) => {
         const firstLink = container.querySelector("a");
@@ -124,5 +149,36 @@
     fixDirectLinks();
     const linkObserver = new MutationObserver(fixDirectLinks);
     linkObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  // For Xiaohongshu downloader
+  if (isXiaohongshu) {
+    function getNoteTitle() {
+      return document
+        .querySelector('a[href*="https://www.xiaohongshu.com/discovery"] h5')
+        ?.textContent.trim();
+    }
+    function getAuthor() {
+      return document
+        .querySelector('a[href*="https://www.xiaohongshu.com/user/profile"] h5')
+        ?.textContent.trim();
+    }
+
+    let imgCount = 0;
+    document.querySelectorAll("button").forEach((btn) => {
+      if (btn.innerText.includes("PNG [")) {
+        const match = btn
+          .getAttribute("onclick")
+          .match(/downloadFileHref\('([^']+)'/);
+        if (!match || !match[1]) return;
+        const imgUrl = match[1];
+        const fileName = `${getNoteTitle()}-xhs@${getAuthor()}-${++imgCount}`;
+        forceDownloadImage(imgUrl, fileName);
+      }
+    });
+  }
+
+  async function wait() {
+    return new Promise((resolve) => setTimeout(resolve, 1000));
   }
 })();
