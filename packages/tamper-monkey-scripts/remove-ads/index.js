@@ -99,4 +99,30 @@
       { once: true }
     );
   }
+
+  // Fix ssstwitter.com links
+  if (location.hostname.includes("ssstwitter.com")) {
+    function fixDirectLinks() {
+      document.querySelectorAll(".result-container").forEach((container) => {
+        const firstLink = container.querySelector("a");
+        if (
+          firstLink &&
+          firstLink.dataset.directurl &&
+          !firstLink.dataset.fixed
+        ) {
+          const directUrl = firstLink.dataset.directurl;
+          firstLink.href = directUrl;
+          firstLink.removeAttribute("data-directurl");
+          firstLink.dataset.fixed = "true";
+          console.log(">>>Fixed direct URL:", directUrl);
+          window.open(directUrl, "_blank");
+        }
+      });
+    }
+
+    // Run immediately and watch for future updates
+    fixDirectLinks();
+    const linkObserver = new MutationObserver(fixDirectLinks);
+    linkObserver.observe(document.body, { childList: true, subtree: true });
+  }
 })();
