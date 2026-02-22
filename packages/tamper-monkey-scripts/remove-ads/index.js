@@ -8,7 +8,9 @@
 // @match        https://*.dlpanda.com/*
 // @match        https://ssstwitter.com/*
 // @match        https://*.ssstwitter.com/*
+// @match        https://*.kukutool.com/*
 // @grant        none
+// @grant        GM_download
 // @run-at       document-end
 // ==/UserScript==
 
@@ -18,6 +20,7 @@
   const isTwitter = location.hostname.includes("ssstwitter.com");
   const isDlpanda = location.hostname.includes("dlpanda.com");
   const isXiaohongshu = location.pathname === "/xiaohongshu";
+  const isKukutool = location.hostname.includes("kukutool.com");
   // override `showAds` function
   window.showAd = () => {};
 
@@ -79,8 +82,7 @@
   }, 2000);
 
   // Auto paste function
-  async function pasteClipboardToInput(inputId) {
-    const input = document.querySelector(`#${inputId}`);
+  async function pasteClipboardToInput(input) {
     if (!input) return;
 
     try {
@@ -95,33 +97,45 @@
     }
   }
 
-  let inputId = null;
+  let inputElement = null;
 
   // For TikTok and XHS downloader
   if (isDlpanda) {
-    inputId = "url";
+    inputElement = document.querySelector(`#url`);
   }
 
   // For X downloader
   if (isTwitter) {
-    inputId = "main_page_text";
+    inputElement = document.querySelector(`#main_page_text`);
   }
 
-  if (inputId) {
-    // Try immediately and again after a short delay (in case input loads late)
-    // pasteClipboardToInput(inputId);
+  // For Kukutool
+  if (isKukutool) {
+    inputElement = document.querySelector(
+      'input[placeholder="Copy RedNote link here"]',
+    );
+  }
+
+  if (inputElement) {
+    // Try immediately and again after a short delay (in case input loads lat
     // Try when the document gets focus
-    window.addEventListener("focus", () => pasteClipboardToInput(inputId), {
-      once: true,
-    });
+    window.addEventListener(
+      "focus",
+      () => {
+        console.log(">>>Paste upon focus");
+        pasteClipboardToInput(inputElement);
+      },
+      { once: true },
+    );
 
     // Also try after the first user click
     document.addEventListener(
       "click",
       () => {
-        pasteClipboardToInput(inputId);
+        console.log(">>>Paste upon click");
+        pasteClipboardToInput(inputElement);
       },
-      { once: true }
+      { once: true },
     );
   }
 
@@ -153,32 +167,53 @@
 
   // For Xiaohongshu downloader
   if (isXiaohongshu) {
+    let imgCount = 0;
+    // download image
+    document.querySelectorAll("button").forEach((btn) => {
+      if (btn.innerText.includes("JPG [")) {
+        console.log(">>>img");
+        const match = btn
+          .getAttribute("onclick")
+          .match(/downloadFileHref\('([^']+)'/);
+        if (!match || !match[1]) return;
+        const imgUrl = match[1];
+        const imgFileName = `${getNoteTitle()}-xhs@${getAuthor()}-${++imgCount}`;
+        console.log(">>>downloading img");
+        forceDownloadImage(imgUrl, imgFileName);
+      }
+    });
+
+    // download video
+    const videoBtn = document.querySelector("a#download-video-btn-a");
+    console.log(">>>videoBtn", videoBtn);
+    if (videoBtn) {
+      const videoUrl = videoBtn.getAttribute("href");
+      const videoFileName = `${getNoteTitle()}-xhs@${getAuthor()}`;
+      console.log(">>>GM_download", GM_download);
+      GM_download({
+        url: videoUrl,
+        name: `${videoFileName}.mp4`,
+        saveAs: false,
+      });
+    }
+
     function getNoteTitle() {
-      return document
+      const heading = document
         .querySelector('a[href*="https://www.xiaohongshu.com/discovery"] h5')
         ?.textContent.trim();
+      if (heading) return heading;
+      const desc = document.querySelector("pre#desc-text")?.textContent.trim();
+      return desc || "";
     }
     function getAuthor() {
       return document
         .querySelector('a[href*="https://www.xiaohongshu.com/user/profile"] h5')
         ?.textContent.trim();
     }
-
-    let imgCount = 0;
-    document.querySelectorAll("button").forEach((btn) => {
-      if (btn.innerText.includes("PNG [")) {
-        const match = btn
-          .getAttribute("onclick")
-          .match(/downloadFileHref\('([^']+)'/);
-        if (!match || !match[1]) return;
-        const imgUrl = match[1];
-        const fileName = `${getNoteTitle()}-xhs@${getAuthor()}-${++imgCount}`;
-        forceDownloadImage(imgUrl, fileName);
-      }
-    });
   }
 
-  async function wait() {
-    return new Promise((resolve) => setTimeout(resolve, 1000));
+  if (isKukutool) {
+    // Autopaste url
+    const urlInput = document.querySelector("#url");
   }
 })();
