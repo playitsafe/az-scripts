@@ -19,7 +19,7 @@
     (e) => {
       if (e.metaKey) metaDown = true;
     },
-    true
+    true,
   );
 
   window.addEventListener(
@@ -27,7 +27,7 @@
     (e) => {
       if (!e.metaKey) metaDown = false;
     },
-    true
+    true,
   );
 
   window.addEventListener("blur", () => {
@@ -39,7 +39,7 @@
       GM_setClipboard(text);
     } else if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).catch((err) => {
-        console.error("clipboard API error:", err);
+        console.error("clipboard API 失败:", err);
       });
     } else {
       console.warn("Failed to copy: API not available");
@@ -84,7 +84,7 @@
     if (text.trim()) {
       copyToClipboard(text.trim());
       showToast(
-        "Copyied: " + (text.length > 20 ? text.slice(0, 20) + "..." : text)
+        "Copied: " + (text.length > 20 ? text.slice(0, 20) + "..." : text),
       );
 
       // reset meta flag in case keyup didn’t fire (macOS Safari/Chrome quirk)
