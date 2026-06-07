@@ -11,6 +11,7 @@
 // @match        https://*.kukutool.com/*
 // @grant        none
 // @grant        GM_download
+// @grant        GM_openInTab
 // @run-at       document-end
 // ==/UserScript==
 
@@ -154,7 +155,14 @@
           firstLink.removeAttribute("data-directurl");
           firstLink.dataset.fixed = "true";
           console.log(">>>Fixed direct URL:", directUrl);
-          window.open(directUrl, "_blank");
+          if (typeof GM_openInTab === "function") {
+            GM_openInTab(directUrl, { active: false, insert: true });
+          } else {
+            // Fallback if GM API is unavailable.
+            window.open(directUrl, "_blank", "noopener,noreferrer");
+          }
+          // redirect after opening the link
+          window.location.href = "https://ssstwitter.com";
         }
       });
     }
