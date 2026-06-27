@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "rate": "node ./packages/rate-checker/get_aud_rate.js",
-    "type": "node ./packages/type-validator/index.js"
+    "type": "node ./packages/type-validator/index.js",
+    "rename:mp4": "node ./packages/file-organizer/index.js"
   },
   "author": "aaron",
   "license": "ISC",
